@@ -9,7 +9,7 @@
 # from keepalived.
 ################################################################################
 
-FROM mrbobbytables/ubuntu-base:1.0.0
+FROM mrbobbytables/ubuntu-base:1.0.2
 MAINTAINER Bob Killen / killen.bob@gmail.com / @mrbobbytables
 
 
@@ -19,6 +19,7 @@ ENV VERSION_OPENVPN=2.3.2-7ubuntu3.1  \
 RUN apt-get update      \
  && apt-get -y install  \
     iptables            \
+    vim \
     keepalived=$VERSION_KEEPALIVED     \
     openvpn=$VERSION_OPENVPN           \
  && apt-get -y autoremove              \
@@ -29,7 +30,6 @@ RUN apt-get update      \
 COPY ./skel  /
 
 RUN chmod +x ./init.sh         \
- && mkdir -p /var/log/openvpn  \
  && chown -R logstash-forwarder:logstash-forwarder /opt/logstash-forwarder
 
 

@@ -37,11 +37,14 @@ init_vars() {
   case "${ENVIRONMENT,,}" in
     prod|production|dev|development)
       export SERVICE_KEEPALIVED=${SERVICE_KEEPALIVED:-enabled}
+      export SERVICE_LOGROTATE=${SERVICE_LOGROTATE:-enabled}
+      export SERVICE_LOGROTATE_CONFIG=${SERVICE_LOGROTATE_CONFIG:-/etc/logrotate.conf}
       export SERVICE_LOGSTASH_FORWARDER=${SERVICE_LOGSTASH_FORWARDER:-enabled}
       export SERVICE_REDPILL=${SERVICE_REDPILL:-enabled}
       ;;
     debug)
       export SERVICE_KEEPALIVED=${SERVICE_KEEPALIVED:-enabled}
+      export SERVICE_LOGROTATE=${SERVICE_LOGROTATE:-disabled}
       export SERVICE_LOGSTASH_FORWARDER=${SERVICE_LOGSTASH_FORWARDER:-disabled}
       export SERVICE_REDPILL=${SERVICE_REDPILL:-disabled}
       export SERVICE_KEEPALIVED_CMD="/usr/sbin/keepalived -n -D -l -f $SERVICE_KEEPALIVED_CONF"
@@ -49,6 +52,8 @@ init_vars() {
       ;;
     local|*)
       export SERVICE_KEEPALIVED=${SERVICE_KEEPALIVED:-disabled} 
+      export SERVICE_LOGROTATE=${SERVICE_LOGROTATE:-enabled}
+      export SERVICE_LOGROTATE_CONFIG=${SERVICE_LOGROTATE_CONFIG:-/etc/logrotate.conf}
       export SERVICE_LOGSTASH_FORWARDER=${SERVICE_LOGSTASH_FORWARDER:-disabled}
       export SERVICE_REDPILL=${SERVICE_REDPILL:-enabled}
       ;;
@@ -161,6 +166,7 @@ config_ovpn() {
       echo "persist-tun" >> "$OVPN_CONF"
       echo "user nobody" >> "$OVPN_CONF"
       echo "group nogroup" >> "$OVPN_CONF"
+      echo "syslog openvpn" >> "$OVPN_CONF"
       echo "mode $OVPN_MODE" >> "$OVPN_CONF"
       echo "ca $OVPN_CA" >> "$OVPN_CONF"
       echo "cert $OVPN_CERT" >> "$OVPN_CONF"
@@ -168,7 +174,7 @@ config_ovpn() {
       echo "dh $OVPN_DH" >> "$OVPN_CONF"
       echo "cipher $OVPN_CIPHER" >> "$OVPN_CONF"
       echo "verb $OVPN_VERB" >> "$OVPN_CONF"
-      echo "log-append $OVPN_LOG_APPEND" >> "$OVPN_CONF"
+#      echo "log-append $OVPN_LOG_APPEND" >> "$OVPN_CONF"
       echo "local $OVPN_LOCAL" >> "$OVPN_CONF"
       echo "port $OVPN_PORT" >> "$OVPN_CONF"
       echo "proto $OVPN_PROTO" >> "$OVPN_CONF"
@@ -202,6 +208,7 @@ main() {
   echo "[$(date)][Environment] $ENVIRONMENT"
 
   __config_service_keepalived
+  __config_service_logrotate
   __config_service_logstash_forwarder
   __config_service_redpill
   __config_service_rsyslog
