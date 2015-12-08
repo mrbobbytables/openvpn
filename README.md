@@ -85,7 +85,7 @@ For a production or development deployment with [Keepalived](#keepalived) enable
 
 **Configuration Parameters**
 
-* `ENVIRONMENT` - when set to `production` or `development` it will enable all services including: `openvpn`, `nslcd`, `keepalived`, `logstash-forwarder`, and `redpill`.
+* `ENVIRONMENT` - when set to `production` or `development` it will enable all services including: `openvpn`, `rsyslog`, `keepalived`, `logrotate`, `logstash-forwarder`, and `redpill`.
 
 * `OVPN_LOCAL` - This is the IP address that OpenVPN should listen on for incoming public connections.
 
@@ -137,7 +137,7 @@ openvpn
 ```bash
 docker run -d --net=host --cap-add NET_ADMIN \
 -e ENVIRONMENT=production \
--e PARENT_HOST="$(hostname)" \
+-e PARENT_HOST=$(hostname) \
 -e OVPN_LOCAL=172.16.1.20 \
 -e OVPN_PUSH_1="route 10.10.0.0 255.255.255.0" \
 -e OVPN_PUSH_2="dhcp-option DNS 10.10.0.111" \
