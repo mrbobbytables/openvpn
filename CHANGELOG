@@ -1,0 +1,4 @@
+2015-12-08 - 1.1.0:
+  - Use Ubuntu base 1.0.2
+  - switchen openvpn autoconf to use syslog for logging
+  - Added logrotate support
