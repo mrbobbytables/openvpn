@@ -25,9 +25,10 @@ init_vars() {
   export OVPN_IPTB_CREATE=${OVPN_IPTB_CREATE:-/opt/scripts/create-iptb-rules.sh}
   export OVPN_IPTB_DELETE=${OVPN_IPTB_DELETE:-/opt/scripts/delete-iptb-rules.sh}
   export KEEPALIVED_AUTOCONF=${KEEPALIVED_AUTOCONF:-enabled}
+
+  export SERVICE_RSYSLOG=${SERVICE_RSYSLOG:-enabled}
   export SERVICE_KEEPALIVED_CONF=${SERVICE_KEEPALIVED_CONF:-/etc/keepalived/keepalived.conf}
   export SERVICE_LOGSTASH_FORWARDER_CONF=${SERVICE_LOGSTASH_FORWARDER_CONF:-/opt/logstash-forwarder/ovpn.conf}
-  export SERVICE_NSLCD=${SERVICE_NSLCD:-enabled}
   export SERVICE_REDPILL_CLEANUP=${SERVICE_REDPILL_CLEANUP:-"$OVPN_IPTB_DELETE"}
   export SERVICE_REDPILL_MONITOR=${SERVICE_REDPILL_MONITOR:-"ovpn,keepalived"}
 
@@ -38,7 +39,6 @@ init_vars() {
     prod|production|dev|development)
       export SERVICE_KEEPALIVED=${SERVICE_KEEPALIVED:-enabled}
       export SERVICE_LOGROTATE=${SERVICE_LOGROTATE:-enabled}
-      export SERVICE_LOGROTATE_CONFIG=${SERVICE_LOGROTATE_CONFIG:-/etc/logrotate.conf}
       export SERVICE_LOGSTASH_FORWARDER=${SERVICE_LOGSTASH_FORWARDER:-enabled}
       export SERVICE_REDPILL=${SERVICE_REDPILL:-enabled}
       ;;
@@ -53,19 +53,11 @@ init_vars() {
     local|*)
       export SERVICE_KEEPALIVED=${SERVICE_KEEPALIVED:-disabled} 
       export SERVICE_LOGROTATE=${SERVICE_LOGROTATE:-enabled}
-      export SERVICE_LOGROTATE_CONFIG=${SERVICE_LOGROTATE_CONFIG:-/etc/logrotate.conf}
       export SERVICE_LOGSTASH_FORWARDER=${SERVICE_LOGSTASH_FORWARDER:-disabled}
       export SERVICE_REDPILL=${SERVICE_REDPILL:-enabled}
       ;;
   esac
-
-  # enabled for keepalived logging
-  if [[ "${SERVICE_KEEPALIVED,,}" == "enabled" ]]; then
-    export SERVICE_RSYSLOG=${SERVICE_RSYSLOG:-enabled}
-  fi
-
 }
-
 
 
 add_user_iptables_rules() {
@@ -74,6 +66,7 @@ add_user_iptables_rules() {
     echo "iptables -D ${!rule}" >> "$OVPN_IPTB_DELETE"
   done
 }
+
 
 config_iptables() {
 
@@ -128,6 +121,7 @@ config_iptables() {
   return 0
 }
 
+
 config_ovpn() {
 
   mkdir -p /dev/net
@@ -174,7 +168,6 @@ config_ovpn() {
       echo "dh $OVPN_DH" >> "$OVPN_CONF"
       echo "cipher $OVPN_CIPHER" >> "$OVPN_CONF"
       echo "verb $OVPN_VERB" >> "$OVPN_CONF"
-#      echo "log-append $OVPN_LOG_APPEND" >> "$OVPN_CONF"
       echo "local $OVPN_LOCAL" >> "$OVPN_CONF"
       echo "port $OVPN_PORT" >> "$OVPN_CONF"
       echo "proto $OVPN_PROTO" >> "$OVPN_CONF"

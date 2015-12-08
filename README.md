@@ -1,4 +1,4 @@
-# - OpenVPN - 
+# - OpenVPN -
 An Ubuntu container built with the purpose of offering a highly available OpenVPN server.
 
 High availability is provided via Keepalived; a well-proven and battle-tested routing and failover service. The main reason for using Keepalived in addition to Marathon's own HA is to account for scenarios where Mesos/Marathon itself may be having issues (e.g. cluster net-splits) and access is still needed to the private Mesos-Network.
@@ -7,7 +7,7 @@ With services such as OpenVPN where a container needs to modify the host configu
 
 ##### Version Information:
 
-* **Container Release:** 1.0.0
+* **Container Release:** 1.1.0
 * **OpenVPN:** 2.3.2-7ubuntu3.1
 * **Keepalived:** 1:1.2.7-1ubuntu1
 
@@ -16,6 +16,7 @@ With services such as OpenVPN where a container needs to modify the host configu
 * **[OpenVPN](#openvpn)** - Provides network access from the public network side to the Mesos-Network.
 * **[Rsyslog](#rsyslog)** - The system logging daemon. Bundled to support logging for Keepalived.
 * **[Keepalived](#keepalived)** - A well known and frequently used framework that provides load-balancing and fault tolerance via VRRP (Virtual Router Redundancy Protocol).
+* **[Logrotate](#logrotate)** - A script and application that aid in pruning log files.
 * **[Logstash-Forwarder](#logstash-forwarder)** - A lightweight log collector and shipper for use with [Logstash](https://www.elastic.co/products/logstash).
 * **[Redpill](#redpill)** - A bash script and healthcheck for supervisord managed services. It is capable of running cleanup scripts that should be executed upon container termination.
 
@@ -36,6 +37,7 @@ With services such as OpenVPN where a container needs to modify the host configu
    * [Disabled Autoconfiguration](#disabled-autoconfiguration)
  * [Rsyslog](#rsyslog)
  * [Keepalived](#keepalived)
+ * [Logrotate](#logrotate)
  * [Logstash-Forwarder](#logstash-forwarder)
  * [Redpill](#redpill)
 * [Troubleshooting](#troubleshooting)
@@ -110,7 +112,7 @@ For further configuration parameters, please see either the [OpenVPN](#openvpn) 
 ### Example Run Command
 
 **Master**
-```
+```bash
 docker run -d --net=host --cap-add NET_ADMIN \
 -e ENVIRONMENT=production \
 -e PARENT_HOST=$(hostname) \
@@ -132,7 +134,7 @@ openvpn
 ```
 
 **Backup**
-```
+```bash
 docker run -d --net=host --cap-add NET_ADMIN \
 -e ENVIRONMENT=production \
 -e PARENT_HOST="$(hostname)" \
@@ -158,7 +160,7 @@ openvpn
 ### Example Marathon App Definition
 
 **Master**
-```
+```json
 {
     "id": "/ovpn/master",
     "instances": 1,
@@ -210,7 +212,7 @@ openvpn
 ```
 
 **Backup**
-```
+```json
 {
     "id": "/ovpn/backup",
     "instances": 1,
@@ -309,11 +311,14 @@ In practice, the supplied Logstash-Forwarder config should be used as an example
 | `SERVICE_KEEPALIVED`              |                                          |
 | `SERVICE_KEEPALIVED_CONF`         | `/etc/keepalived/keepalived.conf`        |
 | `KEEPALIVED_AUTOCONF`             | `enabled`                                |
+| `SERVICE_LOGROTATE`               |                                          |
+| `SERVICE_LOGROTATE_INTERVAL`      | `3600` (set in script by default)        |
 | `SERVICE_LOGSTASH_FORWARDER`      |                                          |
 | `SERVICE_LOGSTASH_FORWARDER_CONF` | `/opt/logstash-forwarder/ovpn.conf`      |
 | `SERVICE_REDPILL`                 |                                          |
 | `SERVICE_REDPILL_MONITOR`         | `ovpn,keepalived`                        |
 | `SERVICE_REDPILL_CLEANUP`         | `$IPTB_DELETE`                           |
+| `SERVICE_RSYSLOG`                 | `enabled`                                |
 
 #### Description
 
@@ -341,6 +346,10 @@ In practice, the supplied Logstash-Forwarder config should be used as an example
 
 * `KEEPALIVED_AUTOCONF` - Enables or disables Keepalived autoconfiguration. (**Options:** `enabled` or `disabled`)
 
+* `SERVICE_LOGROTATE` - Enables or disabled the Logrotate service. This will be set automatically depending on the environment. (**Options:** `enabled` or `disabled`)
+
+* `SERVICE_LOGROTATE_INTERVAL` - The time in seconds between runs of logrotate or the logrotate script. The default (3600 or 1 hour) is set by default in the logrotate script automatically.
+
 * `SERVICE_LOGSTASH_FORWARDER` - Enables or disables the Logstash-Forwarder service. Set automatically depending on the `ENVIRONMENT`. See the Environment section below.  (**Options:** `enabled` or `disabled`)
 
 * `SERVICE_LOGSTASH_FORWARDER_CONF` - The path to the logstash-forwarder configuration.
@@ -350,6 +359,8 @@ In practice, the supplied Logstash-Forwarder config should be used as an example
 * `SERVICE_REDPILL_MONITOR` - The name of the supervisord service(s) that the Redpill service check script should monitor.
 
 * `SERVICE_REDPILL_CLEANUP` - The path to the script that will be executed upon container termination. For OpenVPN this should clear any iptables rules from the host.
+
+* `SERVICE_RSYSLOG` - Enables of disables the rsyslog service. This is `enabled` by default and should not be disabled unless manually mananging logging.
 
 ---
 
@@ -361,6 +372,7 @@ In practice, the supplied Logstash-Forwarder config should be used as an example
 | Variable                     | Default  |
 |------------------------------|----------|
 | `SERVICE_KEEPALIVED`         | disabled |
+| `SERVICE_LOGROTATE`          | enabled  |
 | `SERVICE_LOGSTASH_FORWARDER` | disabled |
 | `SERVICE_REDPILL`            | enabled  |
 
@@ -370,6 +382,7 @@ In practice, the supplied Logstash-Forwarder config should be used as an example
 | Variable                     | Default |
 |------------------------------|---------|
 | `SERVICE_KEEPALIVED`         | enabled |
+| `SERVICE_LOGROTATE`          | enabled |
 | `SERVICE_LOGSTASH_FORWARDER` | enabled |
 | `SERVICE_REDPILL`            | enabled |
 
@@ -379,10 +392,10 @@ In practice, the supplied Logstash-Forwarder config should be used as an example
 | Variable                     | Default                                                     |
 |------------------------------|-------------------------------------------------------------|
 | `SERVICE_KEEPALIVED`         | enabled                                                     |
+| `SERVICE_LOGROTATE`          | disabled                                                    |
 | `SERVICE_LOGSTASH_FORWARDER` | disabled                                                    |
 | `SERVICE_REDPILL`            | enabled                                                     |
 | `SERVICE_KEEPALIVED_CMD`     | `/usr/sbin/keepalived -n -D -l -f $SERVICE_KEEPALIVED_CONF` |
-| `SERVICE_NSLCD_CMD`          | `/usr/sbin/nslcd -d`                                        |
 | `OVPN_VERB`                  | 11                                                          |
 
 ---
@@ -409,7 +422,6 @@ If `OVPN_AUTOCONF` is set to enabled (default). The other variables will become 
 | `OVPN_DH`          | `/etc/openvpn/certs/dh2048.pem`     |
 | `OVPN_CIPHER`      | `BF-CBC`                            |
 | `OVPN_VERB`        | `1`                                 |
-| `OVPN_LOG_APPEND`  | `/var/log/openvpn/ovpn.log`         |
 | `OVPN_LOCAL`       |                                     |
 | `OVPN_PORT`        | `1194`                              |
 | `OVPN_PROTO`       | `udp`                               |
@@ -438,8 +450,6 @@ If `OVPN_AUTOCONF` is set to enabled (default). The other variables will become 
 
 * `OVPN_VERB` - The logging verbosity. Should be a value between 1-11.
 
-* `OVPN_LOG_APPEND` - The path to the log file.
-
 * `OVPN_LOCAL` - The IP Address that OpenVPN should bind to. (**Required**)
 
 * `OVPN_PORT` - The port the OpenVPN server will listen on.
@@ -457,7 +467,7 @@ If `OVPN_AUTOCONF` is set to enabled (default). The other variables will become 
 * `OVPN_IPTB_CREATE` - The path to the iptables rule creation script.
 
 * `OVPN_IPTB_DELETE` - The path to the iptables rule deletion script.
- 
+
 * `IPTB_RULE_###` - An optional quoted string containing an iptables rule to be added to the two iptables scripts. They should **NOT** include either `iptables -A` or `iptables -D`, they will be added automatically. **Note:** They will be appended at the **END** of the iptables creation/deletion scripts.
 
 **Note:** The following configuration block will automatically prepend any of the above configuration options in the final autogenerated config:
@@ -468,6 +478,7 @@ persist-key
 persist-tun
 user nobody
 group nogroup
+syslog openvpn
 ```
 
 
@@ -479,6 +490,7 @@ persist-key
 persist-tun
 user nobody
 group nogroup
+syslog openvpn
 mode server
 ca /etc/openvpn/certs/ca.crt
 cert /etc/openvpn/certs/server.crt
@@ -515,7 +527,7 @@ verb 1
 ```
 
 ##### Example Auto Generated iptables Creation Script
-```
+```bash
 #!/bin/bash
 # Autocreated iptables creation script.
 iptables -A INPUT -i eth1 -d 172.16.1.20 -p udp --dport 1194 -m conntrack --ctstate NEW -j ACCEPT
@@ -526,7 +538,7 @@ iptables -A POSTROUTING -t nat -o eth0 -s 10.10.0.0/24 -d 192.168.253.0/24 -j MA
 iptables -A OUTPUT -o tun+ -j ACCEPT
 ```
 ##### Example Auto Generated iptables Deletion Script
-```
+```bash
 #!/bin/bash
 # Autocreated iptables deletion script.
 iptables -D INPUT -i eth1 -d 172.16.1.20 -p udp --dport 1194 -m conntrack --ctstate NEW -j ACCEPT
@@ -563,7 +575,7 @@ If `OVPN_AUTOCONF` is disabled. you **must** provide your own configuration. Wit
 ---
 
 ### Rsyslog
-Rsyslog is a high performance log processing daemon. Keepalived's logging capability is dependant on it being available. Rsyslog will only be enabled when Keepalived is enabled. For any modifications to the config, it is best to edit the rsyslog configs directly (`/etc/rsyslog.conf` and `/etc/rsyslog.d/*`).
+Rsyslog is a high performance log processing daemon. Rsyslog is enabled at all times to provide logging for both Keepalived and OpenVPN. For any modifications to the config, it is best to edit the rsyslog configs directly (`/etc/rsyslog.conf` and `/etc/rsyslog.d/*`).
 
 ##### Defaults
 
@@ -711,6 +723,61 @@ vrrp_instance MAIN {
 }
 
 ```
+
+---
+
+
+### Logrotate
+
+The logrotate script is a small simple script that will either call and execute logrotate on a given interval; or execute a supplied script. This is useful for applications that do not perform their own log cleanup.
+
+#### Logrotate Environment Variables
+
+##### Defaults
+
+| **Variable**                 | **Default**                           |
+|------------------------------|---------------------------------------|
+| `SERVICE_LOGROTATE`          |                                       |
+| `SERVICE_LOGROTATE_INTERVAL` | `3600` (set in script)                |
+| `SERVICE_LOGROTATE_CONFIG`   | `/etc/logrotate.conf` (set in script) |
+| `SERVICE_LOGROTATE_SCRIPT`   |                                       |
+| `SERVICE_LOGROTATE_FORCE`    |                                       |
+| `SERVICE_LOGROTATE_VERBOSE`  |                                       |
+| `SERVICE_LOGROTATE_DEBUG`    |                                       |
+| `SERVICE_LOGROTATE_CMD`      | `/opt/script/logrotate.sh <flags>`    |
+
+##### Description
+
+* `SERVICE_LOGROTATE` - Enables or disables the Logrotate service. Set automatically depending on the `ENVIRONMENT`. See the Environment section.  (**Options:** `enabled` or `disabled`)
+
+* `SERVICE_LOGROTATE_INTERVAL` - The time in seconds between run of either the logrotate command or the provided logrotate script. Default is set to `3600` or 1 hour in the script itself.
+
+* `SERVICE_LOGROTATE_CONFIG` - The path to the logrotate config file. If neither config or script is provided, it will default to `/etc/logrotate.conf`.
+
+* `SERVICE_LOGROTATE_SCRIPT` - A script that should be executed on the provided interval. Useful to do cleanup of logs for applications that already handle rotation, or if additional processing is required.
+
+* `SERVICE_LOGROTATE_FORCE` - If present, passes the 'force' command to logrotate. Will be ignored if a script is provided.
+
+* `SERVICE_LOGROTATE_VERBOSE` - If present, passes the 'verbose' command to logrotate. Will be ignored if a script is provided.
+
+* `SERVICE_LOGROTATE_DEBUG` - If present, passed the 'debug' command to logrotate. Will be ignored if a script is provided.
+
+* `SERVICE_LOGROTATE_CMD` - The command that is passed to supervisor. If overriding, must be an escaped python string expression. Please see the [Supervisord Command Documentation](http://supervisord.org/configuration.html#program-x-section-settings) for further information.
+
+
+##### Logrotate Script Help Text
+```
+root@ec58ca7459cb:/opt/scripts# ./logrotate.sh --help
+logrotate.sh - Small wrapper script for logrotate.
+-i | --interval     The interval in seconds that logrotate should run.
+-c | --config       Path to the logrotate config.
+-s | --script       A script to be executed in place of logrotate.
+-f | --force        Forces log rotation.
+-v | --verbose      Display verbose output.
+-d | --debug        Enable debugging, and implies verbose output. No state file changes.
+-h | --help         This usage text.
+```
+
 
 ---
 
