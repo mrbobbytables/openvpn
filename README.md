@@ -369,34 +369,34 @@ In practice, the supplied Logstash-Forwarder config should be used as an example
 
 * `local` (default)
 
-| Variable                     | Default  |
-|------------------------------|----------|
-| `SERVICE_KEEPALIVED`         | disabled |
-| `SERVICE_LOGROTATE`          | enabled  |
-| `SERVICE_LOGSTASH_FORWARDER` | disabled |
-| `SERVICE_REDPILL`            | enabled  |
+| **Variable**                 | **Default** |
+|------------------------------|-------------|
+| `SERVICE_KEEPALIVED`         | `disabled`  |
+| `SERVICE_LOGROTATE`          | `enabled`   |
+| `SERVICE_LOGSTASH_FORWARDER` | `disabled`  |
+| `SERVICE_REDPILL`            | `enabled`   |
 
 
 * `prod`|`production`|`dev`|`development`
 
-| Variable                     | Default |
-|------------------------------|---------|
-| `SERVICE_KEEPALIVED`         | enabled |
-| `SERVICE_LOGROTATE`          | enabled |
-| `SERVICE_LOGSTASH_FORWARDER` | enabled |
-| `SERVICE_REDPILL`            | enabled |
+| **Variable**                 | **Default** |
+|------------------------------|-------------|
+| `SERVICE_KEEPALIVED`         | `enabled`   |
+| `SERVICE_LOGROTATE`          | `enabled`   |
+| `SERVICE_LOGSTASH_FORWARDER` | `enabled`   |
+| `SERVICE_REDPILL`            | `enabled`   |
 
 
 * `debug`
 
-| Variable                     | Default                                                     |
+| **Variable**                 | **Default**                                                 |
 |------------------------------|-------------------------------------------------------------|
-| `SERVICE_KEEPALIVED`         | enabled                                                     |
-| `SERVICE_LOGROTATE`          | disabled                                                    |
-| `SERVICE_LOGSTASH_FORWARDER` | disabled                                                    |
-| `SERVICE_REDPILL`            | enabled                                                     |
+| `SERVICE_KEEPALIVED`         | `enabled`                                                   |
+| `SERVICE_LOGROTATE`          | `disabled`                                                  |
+| `SERVICE_LOGSTASH_FORWARDER` | `disabled`                                                  |
+| `SERVICE_REDPILL`            | `enabled`                                                   |
 | `SERVICE_KEEPALIVED_CMD`     | `/usr/sbin/keepalived -n -D -l -f $SERVICE_KEEPALIVED_CONF` |
-| `OVPN_VERB`                  | 11                                                          |
+| `OVPN_VERB`                  | `11`                                                        |
 
 ---
 ---
@@ -835,7 +835,7 @@ Redpill is a small script that performs status checks on services managed throug
 
 * `SERVICE_REDPILL` - Enables or disables the Redpill service. Set automatically depending on the `ENVIRONMENT`. See the Environment section.  (**Options:** `enabled` or `disabled`)
 
-* `SERVICE_REDPILL_MONITOR` - The name of the supervisord service(s) that the Redpill service check script should monitor. 
+* `SERVICE_REDPILL_MONITOR` - The name of the supervisord service(s) that the Redpill service check script should monitor.
 
 * `SERVICE_REDPILL_INTERVAL` - The interval in which Redpill polls supervisor for status checks. (Default for the script is 30 seconds)
 
