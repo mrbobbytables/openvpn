@@ -1,8 +1,8 @@
 #!/bin/bash
 
-########## OpenVPN - LDAP ##########
+########## OpenVPN ##########
 # Init script for openVPN
-########## OpenVPN - LDAP ##########
+########## OpenVPN ##########
 
 source /opt/scripts/container_functions.lib.sh
 
@@ -28,6 +28,7 @@ init_vars() {
 
   export SERVICE_RSYSLOG=${SERVICE_RSYSLOG:-enabled}
   export SERVICE_KEEPALIVED_CONF=${SERVICE_KEEPALIVED_CONF:-/etc/keepalived/keepalived.conf}
+  export SERVICE_LOGROTATE_CONF=${SERVICE_LOGROTATE_CONF:-/etc/logrotate.conf}
   export SERVICE_LOGSTASH_FORWARDER_CONF=${SERVICE_LOGSTASH_FORWARDER_CONF:-/opt/logstash-forwarder/ovpn.conf}
   export SERVICE_REDPILL_CLEANUP=${SERVICE_REDPILL_CLEANUP:-"$OVPN_IPTB_DELETE"}
   export SERVICE_REDPILL_MONITOR=${SERVICE_REDPILL_MONITOR:-"ovpn,keepalived"}

@@ -1,3 +1,7 @@
+2015-12-24 - 1.1.1:
+ - Use Ubuntu base 1.0.3
+ - Fix bug with logrotate not launching correctly when no conf defined
+
 2015-12-08 - 1.1.0:
   - Use Ubuntu base 1.0.2
   - switchen openvpn autoconf to use syslog for logging

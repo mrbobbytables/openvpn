@@ -7,7 +7,7 @@ With services such as OpenVPN where a container needs to modify the host configu
 
 ##### Version Information:
 
-* **Container Release:** 1.1.0
+* **Container Release:** 1.1.1
 * **OpenVPN:** 2.3.2-7ubuntu3.1
 * **Keepalived:** 1:1.2.7-1ubuntu1
 
@@ -739,7 +739,7 @@ The logrotate script is a small simple script that will either call and execute 
 |------------------------------|---------------------------------------|
 | `SERVICE_LOGROTATE`          |                                       |
 | `SERVICE_LOGROTATE_INTERVAL` | `3600` (set in script)                |
-| `SERVICE_LOGROTATE_CONFIG`   | `/etc/logrotate.conf` (set in script) |
+| `SERVICE_LOGROTATE_CONF`     | `/etc/logrotate.conf` (set in script) |
 | `SERVICE_LOGROTATE_SCRIPT`   |                                       |
 | `SERVICE_LOGROTATE_FORCE`    |                                       |
 | `SERVICE_LOGROTATE_VERBOSE`  |                                       |
@@ -752,7 +752,7 @@ The logrotate script is a small simple script that will either call and execute 
 
 * `SERVICE_LOGROTATE_INTERVAL` - The time in seconds between run of either the logrotate command or the provided logrotate script. Default is set to `3600` or 1 hour in the script itself.
 
-* `SERVICE_LOGROTATE_CONFIG` - The path to the logrotate config file. If neither config or script is provided, it will default to `/etc/logrotate.conf`.
+* `SERVICE_LOGROTATE_CONF` - The path to the logrotate config file. If neither config or script is provided, it will default to `/etc/logrotate.conf`.
 
 * `SERVICE_LOGROTATE_SCRIPT` - A script that should be executed on the provided interval. Useful to do cleanup of logs for applications that already handle rotation, or if additional processing is required.
 
