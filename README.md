@@ -7,7 +7,7 @@ With services such as OpenVPN where a container needs to modify the host configu
 
 ##### Version Information:
 
-* **Container Release:** 1.1.1
+* **Container Release:** 1.2.0
 * **OpenVPN:** 2.3.2-7ubuntu3.1
 * **Keepalived:** 1:1.2.7-1ubuntu1
 

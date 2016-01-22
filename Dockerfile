@@ -1,6 +1,6 @@
 ################################################################################
-# openvpn:1.1.1
-# Date: 12/24/2015
+# openvpn:1.2.0
+# Date: 1/22/2016
 # OpenVPN Version: 2.3.2-7ubuntu3.1
 # Keepalived Version: 1:1.2.7-1ubuntu1
 #
@@ -9,7 +9,7 @@
 # from keepalived.
 ################################################################################
 
-FROM mrbobbytables/ubuntu-base:1.0.3
+FROM mrbobbytables/ubuntu-base:1.1.0
 MAINTAINER Bob Killen / killen.bob@gmail.com / @mrbobbytables
 
 
@@ -23,8 +23,6 @@ RUN apt-get update      \
     openvpn=$VERSION_OPENVPN           \
  && apt-get -y autoremove              \
  && apt-get -y autoclean               \
- && rm /etc/rsyslog.d/50-default.conf  \
- && rm -rf /etc/logrotate.d/*          \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY ./skel  /

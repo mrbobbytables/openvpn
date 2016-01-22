@@ -1,3 +1,7 @@
+2016-01-22 - 1.2.0:
+ - Use new Ubuntu base image.
+ - Consul template and envconsul support added
+
 2015-12-24 - 1.1.1:
  - Use Ubuntu base 1.0.3
  - Fix bug with logrotate not launching correctly when no conf defined
