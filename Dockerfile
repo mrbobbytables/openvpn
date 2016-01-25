@@ -19,10 +19,11 @@ ENV VERSION_OPENVPN=2.3.2-7ubuntu3.1  \
 RUN apt-get update      \
  && apt-get -y install  \
     iptables            \
-    keepalived=$VERSION_KEEPALIVED     \
-    openvpn=$VERSION_OPENVPN           \
- && apt-get -y autoremove              \
- && apt-get -y autoclean               \
+    keepalived=$VERSION_KEEPALIVED  \
+    openvpn=$VERSION_OPENVPN        \
+ && apt-get -y autoremove           \
+ && apt-get -y autoclean            \
+ && mkdir -p /var/log/openvpn       \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY ./skel  /
