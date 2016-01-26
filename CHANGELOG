@@ -1,4 +1,4 @@
-2016-01-22 - 1.2.0:
+2016-01-26 - 1.2.0:
  - Use new Ubuntu base image.
  - Consul template and envconsul support added
 
